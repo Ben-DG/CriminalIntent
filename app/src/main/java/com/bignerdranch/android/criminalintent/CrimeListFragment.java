@@ -73,6 +73,11 @@ public class CrimeListFragment extends Fragment {
         outState.putBoolean(SAVED_SUBTITLE_VISIBLE, mSubtitleVisible);
     }
 
+
+    //  When a menu is needed, android calls the Activity method OnCreateOptionsMenu(Menu)
+    //    o	To implement in a fragment, override the fragment’s own onCreateOptionsMenu(…) and onOptionsMenuItemSelected(…) methods.
+    //    o	Must explicitly tell the fragment manager that your fragment should receive a call to onCreateOptionsMenu(…).
+    //      Do this by calling the method setHasOptionsMenu(boolean hasMenu).
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater); // call to superclass not required as does nothing - done as convention so functionality defined by superclass will still work
@@ -99,7 +104,7 @@ public class CrimeListFragment extends Fragment {
                 return true;
             case R.id.show_subtitle:
                 mSubtitleVisible = !mSubtitleVisible;
-                getActivity().invalidateOptionsMenu(); // declares options menu changed and needs to be recreated
+                getActivity().invalidateOptionsMenu(); // declares options menu changed and needs to be recreated - call to onCreateOptionsMenu()
                 updateSubtitle();
                 return true;
             default:
