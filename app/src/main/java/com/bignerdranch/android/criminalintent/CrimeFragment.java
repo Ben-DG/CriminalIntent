@@ -175,7 +175,7 @@ public class CrimeFragment extends Fragment {
         return v;
     }
 
-    // TODO: Complete this
+    // TODO: Complete this using mCrime.getSuspectID()
     private String getSuspectPhoneNumber() {
         return "";
     }
