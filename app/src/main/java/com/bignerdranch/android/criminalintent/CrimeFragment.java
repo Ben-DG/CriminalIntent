@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Date;
 import java.util.UUID;
@@ -40,6 +41,7 @@ public class CrimeFragment extends Fragment {
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
+    private static final int REQUEST_NUMBER = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -47,6 +49,7 @@ public class CrimeFragment extends Fragment {
     private CheckBox mSolvedCheckbox;
     private Button mSuspectButton;
     private Button mReportButton;
+    private Button mCallButton;
 
     public static CrimeFragment newInstance(UUID crimeId) {
 
@@ -138,19 +141,42 @@ public class CrimeFragment extends Fragment {
             public void onClick(View v) {
                 startActivityForResult(pickContact, REQUEST_CONTACT);
             }
+
         });
-
         if (mCrime.getSuspect() != null) {
-            mSuspectButton.setText(mCrime.getSuspect());
+            mSuspectButton.setText(getString(R.string.crime_suspect_chosen, mCrime.getSuspect()));
         }
-
         PackageManager packageManager = getActivity().getPackageManager();
         if (packageManager.resolveActivity(pickContact,
                 packageManager.MATCH_DEFAULT_ONLY) == null) {
             mSuspectButton.setEnabled(false);
         }
 
+        mCallButton = (Button) v.findViewById(R.id.crime_call_suspect);
+        if (mCrime.getSuspect() == null) {
+            mCallButton.setEnabled(false);
+        } else {
+            mCallButton.setEnabled(true);
+        }
+        mCallButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phoneNumber = getSuspectPhoneNumber();
+                if (!phoneNumber.equals("")) {
+                    Uri number = Uri.parse("tel:" + phoneNumber);
+                    Intent intent = new Intent(Intent.ACTION_DIAL, number);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(getActivity(), R.string.number_not_found, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return v;
+    }
+
+    private String getSuspectPhoneNumber() {
+        return "";
     }
 
     @Override
@@ -197,7 +223,8 @@ public class CrimeFragment extends Fragment {
                 c.moveToFirst();
                 String suspect = c.getString(0);
                 mCrime.setSuspect(suspect);
-                mSuspectButton.setText(suspect);
+                mSuspectButton.setText(getString(R.string.crime_suspect_chosen, suspect));
+                mCallButton.setEnabled(true);
             } finally {
                 c.close();
             }
