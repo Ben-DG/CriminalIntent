@@ -175,6 +175,7 @@ public class CrimeFragment extends Fragment {
         return v;
     }
 
+    // TODO: Complete this
     private String getSuspectPhoneNumber() {
         return "";
     }
@@ -209,7 +210,8 @@ public class CrimeFragment extends Fragment {
             Uri contactUri = data.getData();
             // Specify which fields want query to return values for
             String[] queryFields = new String[] {
-                    ContactsContract.Contacts.DISPLAY_NAME
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts._ID
             };
             // Perform query - the contactUri is like a "where" clause here
             Cursor c = getActivity().getContentResolver()
@@ -221,8 +223,10 @@ public class CrimeFragment extends Fragment {
 
                 // Pull out the first column of the first row of data - that is suspect's name
                 c.moveToFirst();
-                String suspect = c.getString(0);
+                String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                String suspectID = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
                 mCrime.setSuspect(suspect);
+                mCrime.setSuspectID(suspectID);
                 mSuspectButton.setText(getString(R.string.crime_suspect_chosen, suspect));
                 mCallButton.setEnabled(true);
             } finally {
