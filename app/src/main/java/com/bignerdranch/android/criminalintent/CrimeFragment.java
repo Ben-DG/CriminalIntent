@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ShareCompat;
@@ -41,7 +43,7 @@ public class CrimeFragment extends Fragment {
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
-    private static final int REQUEST_NUMBER = 2;
+    private static final int REQUEST_READ_CONTACTS = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -67,6 +69,7 @@ public class CrimeFragment extends Fragment {
         UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         setHasOptionsMenu(true);
+        checkPermissions();
     }
 
     @Override
@@ -175,9 +178,44 @@ public class CrimeFragment extends Fragment {
         return v;
     }
 
-    // TODO: Complete this using mCrime.getSuspectID()
+    private void checkPermissions() {
+        if (ActivityCompat.checkSelfPermission(getActivity(), android.Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]
+                    {android.Manifest.permission.READ_CONTACTS}, REQUEST_READ_CONTACTS);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST_READ_CONTACTS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mCallButton.setEnabled(true);
+            } else {
+                mCallButton.setEnabled(false);
+            }
+        }
+    }
+
     private String getSuspectPhoneNumber() {
-        return "";
+        String phoneNumber = "";
+        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
+        String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?";
+        String[] selectionArgs = {mCrime.getSuspectID()};
+
+        Cursor c = getActivity().getContentResolver()
+                .query(uri, projection, selection, selectionArgs, null);
+        if (c != null && c.getCount() > 0) {
+            try {
+                c.moveToFirst();
+                phoneNumber = c.getString(c.getColumnIndex(projection[0]));
+            } finally {
+                c.close();
+            }
+        }
+
+        return phoneNumber;
     }
 
     @Override
