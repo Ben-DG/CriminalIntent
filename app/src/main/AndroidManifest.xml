@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.bignerdranch.android.criminalintent">
 
+
+    <uses-feature android:name="android.hardware.camera"
+                  android:required="false"
+        />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +28,19 @@
             A side effect is that the activity you navigate up to will be recreated from scratch. Instance variables will be lost as
             well as any saved instance state-->
         </activity>
+        <!--authorities is a location - place that files will be saved to -->
+        <!--exported=false - keep anyone from using provider except you and those you provide access to -->
+        <!--grantUriPermissions - add ability to grant other apps permissions to write to URIs on this authority when send them out in an intent -->
+        <provider
+            android:authorities="com.bignerdranch.android.criminalintent.fileprovider"
+            android:name="android.support.v4.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!--meta-data tag hooks up files.xml to the FileProvider -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/files"/>
+        </provider>
     </application>
 
 </manifest>
